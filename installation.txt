@@ -1,0 +1,35 @@
+First, download or clone the repository to your machine.
+
+Anaconda/Conda users:
+Do NOT install with pip (pip and conda don't mix). I would strongly recommend creating a clean conda environment configured to install all packages from the conda-forge channel (see instructions at bottom). Then:
+1. Launch Anaconda Prompt and activate the environment in which you want to install the package.
+2. Install required packages:
+	conda install cmdstanpy numpy scipy pandas cvxopt matplotlib
+2. Navigate to the top-level bayes-drt2 directory that contains the setup.py file.
+3. Run the following command to install the package in development mode:
+	conda develop .
+4. Proceed to the "All users" section.
+
+Pip users:
+1. Launch Command Prompt and navigate to the top-level bayes-drt2 directory that contains the setup.py file.
+2. Run the following command to install the package:
+pip install .
+3. Proceed to the "All users" section.
+
+All users:
+After install the cmdstanpy package (either manually if using conda or after pip installs it as a requirement), you will need to install the cmdstan command-line tool that is called by cmdstanpy. This can be achieved by simply opening a Python session and running the following:
+import cmdstanpy
+cmdstanpy.install_cmdstan()
+See the instructions on the cmdstanpy website (https://cmdstanpy.readthedocs.io/en/stable-0.9.65/getting_started.html) for more detail if you get stuck. *Mac users: If you get a 'Command "make build" failed' error during this step, you probably need to install xcode command line tools. Install xcode command line tools (xcode-select --install) and restart your system, then re-try this step. 
+
+
+Creating a conda environment configured for conda-forge channel
+1. Create new environment (change <name> to desired environment name):
+	conda create -n <name> -c conda-forge python=3.9
+2. Activate the new environment:
+	conda activate <name>
+3. Add conda-forge channel:
+	conda config --add channels conda-forge
+4. Set channel priority to strict:
+	conda config --set channel_priority strict
+5. Install packages

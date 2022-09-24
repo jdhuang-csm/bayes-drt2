@@ -1,0 +1,7 @@
+include bayes_drt2/stan_model_files/*.stan
+include LICENSE
+include README.md
+exclude bayes_drt2/stan_model_files/*FreqDependent*
+exclude bayes_drt2/stan_model_files/elemental
+exclude bayes_drt2/stan_model_files/*drift*
+exclude bayes_drt2/stan_model_files/*HN*
