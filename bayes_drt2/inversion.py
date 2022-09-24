@@ -15,7 +15,7 @@ from .matrices import get_basis_func, construct_A, construct_L, construct_M
 from . import peak_fit as pf
 from . import file_load as fl
 from . import plotting as bp
-from . import qphb
+# from . import qphb
 from .utils import check_equality, rel_round, get_outlier_thresh, r2_score, is_subset, \
 	check_basis_type, get_scale_factor, get_factor_from_unit, save_pickle, load_pickle, get_ppd
 
@@ -66,7 +66,7 @@ class Inverter:
 		self._init_params = {}
 		self.distribution_fits = {}
 		self._iter_history = None
-		self.qphb_params = None
+		# self.qphb_params = None
 
 		self.stan_model_name = None
 		self.stan_mle = None
@@ -1007,318 +1007,318 @@ class Inverter:
 		return cvxopt.solvers.qp(P, q, G, h)
 
 	# ==============================================
-	# Quadratic programming hierarchical Bayesian (QPHB) fit
+	# Quadratic programming hierarchical Bayesian (QPHB) fit - NOT USED
 	# ==============================================
-	def qphb_fit(self, frequencies, Z, part='both',
-				 # basic options
-				 penalty='integral', scale_Z=True, nonneg=True,
-				 error_structure=None,
-				 # hyper_lambda parameters
-				 l2_lambda_0=None, l1_penalty=0,
-				 # Prior hyperparameters
-				 rp_scale=14, vmm_epsilon=0.25, vmm_reim_cor=0.2,
-				 iw_alpha=1.55, iw_beta=None,
-				 w_alpha=None, w_beta=None,
-				 s_alpha=3, s_0=1,
-				 p_alpha=1.2, p_0=1,
-				 derivative_weights=[1.5, 1.0, 0.5],
-				 # convex optimization control
-				 xtol=1e-2, max_iter=20, x0=None
-				 ):
+	# def qphb_fit(self, frequencies, Z, part='both',
+				 # # basic options
+				 # penalty='integral', scale_Z=True, nonneg=True,
+				 # error_structure=None,
+				 # # hyper_lambda parameters
+				 # l2_lambda_0=None, l1_penalty=0,
+				 # # Prior hyperparameters
+				 # rp_scale=14, vmm_epsilon=0.25, vmm_reim_cor=0.2,
+				 # iw_alpha=1.55, iw_beta=None,
+				 # w_alpha=None, w_beta=None,
+				 # s_alpha=3, s_0=1,
+				 # p_alpha=1.2, p_0=1,
+				 # derivative_weights=[1.5, 1.0, 0.5],
+				 # # convex optimization control
+				 # xtol=1e-2, max_iter=20, x0=None
+				 # ):
 
-		if len(self.distributions.keys()) > 1:
-			raise ValueError('qphb_fit can not be used for multi-distribution fits')
+		# if len(self.distributions.keys()) > 1:
+			# raise ValueError('qphb_fit can not be used for multi-distribution fits')
 
-		self.distribution_fits = {}
+		# self.distribution_fits = {}
 
-		# Set lambda_0 and iw_0 based on sample size and density
-		ppd = get_ppd(frequencies)
-		if part == 'both':
-			ppd_eff = 2 * ppd
-			n_eff = 2 * len(frequencies)
-		else:
-			ppd_eff = ppd
-			n_eff = len(frequencies)
+		# # Set lambda_0 and iw_0 based on sample size and density
+		# ppd = get_ppd(frequencies)
+		# if part == 'both':
+			# ppd_eff = 2 * ppd
+			# n_eff = 2 * len(frequencies)
+		# else:
+			# ppd_eff = ppd
+			# n_eff = len(frequencies)
 
-		if l2_lambda_0 is None:
-			# lambda_0 decreases with increasing ppd (linear), increases with increasing num frequencies (sqrt)
-			# l2_lambda_0 = 142 * np.sqrt(len(frequencies) / 71) * (10 / ppd)
-			l2_lambda_0 = 142 * np.sqrt(n_eff / 142) * (20 / ppd_eff)
+		# if l2_lambda_0 is None:
+			# # lambda_0 decreases with increasing ppd (linear), increases with increasing num frequencies (sqrt)
+			# # l2_lambda_0 = 142 * np.sqrt(len(frequencies) / 71) * (10 / ppd)
+			# l2_lambda_0 = 142 * np.sqrt(n_eff / 142) * (20 / ppd_eff)
 
-		if iw_beta is None:
-			# iw_0 decreases with increasing ppd (linear), increases with increasing num frequencies (sqrt)
-			# iw_beta = (4 ** 2 * 0.05) * (np.sqrt(len(frequencies) / 71) * (10 / ppd)) ** 2
-			iw_beta = 0.8 * (np.sqrt(n_eff / 142) * (20 / ppd_eff)) ** 2
+		# if iw_beta is None:
+			# # iw_0 decreases with increasing ppd (linear), increases with increasing num frequencies (sqrt)
+			# # iw_beta = (4 ** 2 * 0.05) * (np.sqrt(len(frequencies) / 71) * (10 / ppd)) ** 2
+			# iw_beta = 0.8 * (np.sqrt(n_eff / 142) * (20 / ppd_eff)) ** 2
 
-		print('lambda_0, iw_beta: {:.1f}, {:.2f}'.format(l2_lambda_0, iw_beta))
+		# print('lambda_0, iw_beta: {:.1f}, {:.2f}'.format(l2_lambda_0, iw_beta))
 
-		# For convenience, pull distribution info out of dicts
-		dist_name = list(self.distributions.keys())[0]
-		dist_info = self.distributions[dist_name]
+		# # For convenience, pull distribution info out of dicts
+		# dist_name = list(self.distributions.keys())[0]
+		# dist_info = self.distributions[dist_name]
 
-		# set fit target
-		if dist_info['dist_type'] == 'series':
-			# use impedance for series distributions (e.g. DRT)
-			target = Z
-		elif dist_info['dist_type'] == 'parallel':
-			# for parallel distributions, must fit admittance for linearity
-			target = 1 / Z
+		# # set fit target
+		# if dist_info['dist_type'] == 'series':
+			# # use impedance for series distributions (e.g. DRT)
+			# target = Z
+		# elif dist_info['dist_type'] == 'parallel':
+			# # for parallel distributions, must fit admittance for linearity
+			# target = 1 / Z
 
-		# perform scaling and weighting and get matrices
-		frequencies, target_scaled, WT_re, WT_im, W_re, W_im, dist_mat = self._prep_matrices(frequencies, target, part,
-																							 None, False, scale_Z,
-																							 penalty, 'qphb', rp_scale)
-		# refresh dist_info
-		dist_info = self.distributions[dist_name]
+		# # perform scaling and weighting and get matrices
+		# frequencies, target_scaled, WT_re, WT_im, W_re, W_im, dist_mat = self._prep_matrices(frequencies, target, part,
+																							 # None, False, scale_Z,
+																							 # penalty, 'qphb', rp_scale)
+		# # refresh dist_info
+		# dist_info = self.distributions[dist_name]
 
-		if dist_info['dist_type'] == 'parallel' and scale_Z:
-			# redo the scaling such that Z is still the variable that gets scaled
-			# this helps avoid tiny admittances, which get ignored in fitting
-			Z_scaled = self._scale_Z(Z, 'ridge')
-			target_scaled = 1 / Z_scaled
-			WT_re = W_re @ target_scaled.real
-			WT_im = W_im @ target_scaled.imag
+		# if dist_info['dist_type'] == 'parallel' and scale_Z:
+			# # redo the scaling such that Z is still the variable that gets scaled
+			# # this helps avoid tiny admittances, which get ignored in fitting
+			# Z_scaled = self._scale_Z(Z, 'ridge')
+			# target_scaled = 1 / Z_scaled
+			# WT_re = W_re @ target_scaled.real
+			# WT_im = W_im @ target_scaled.imag
 
-		# unpack matrices
-		matrices = dist_mat[dist_name]
-		penalty_matrices = {}
-		A_re = matrices['A_re']
-		A_im = matrices['A_im']
-		WA_re = matrices['WA_re']
-		WA_im = matrices['WA_im']
-		for d in range(3):
-			if penalty != 'integral':
-				ld = matrices[f'L{d}']
-				penalty_matrices[f'M{d}_main'] = ld.T @ ld
-			else:
-				penalty_matrices[f'M{d}_main'] = matrices[f'M{d}']
-		epsilon = dist_info['epsilon']
+		# # unpack matrices
+		# matrices = dist_mat[dist_name]
+		# penalty_matrices = {}
+		# A_re = matrices['A_re']
+		# A_im = matrices['A_im']
+		# WA_re = matrices['WA_re']
+		# WA_im = matrices['WA_im']
+		# for d in range(3):
+			# if penalty != 'integral':
+				# ld = matrices[f'L{d}']
+				# penalty_matrices[f'M{d}_main'] = ld.T @ ld
+			# else:
+				# penalty_matrices[f'M{d}_main'] = matrices[f'M{d}']
+		# epsilon = dist_info['epsilon']
 
-		# for series distributions, adjust matrices for R_inf and inductance
-		if dist_info['dist_type'] == 'series':
-			# add columns to A_re, B, and A_im
-			A_re_main = A_re.copy()
-			A_re = np.zeros((A_re_main.shape[0], A_re_main.shape[1] + 2))
-			A_re[:, 2:] = A_re_main
-			A_re[:, 0] = 1
+		# # for series distributions, adjust matrices for R_inf and inductance
+		# if dist_info['dist_type'] == 'series':
+			# # add columns to A_re, B, and A_im
+			# A_re_main = A_re.copy()
+			# A_re = np.zeros((A_re_main.shape[0], A_re_main.shape[1] + 2))
+			# A_re[:, 2:] = A_re_main
+			# A_re[:, 0] = 1
 
-			A_im_main = A_im.copy()
-			A_im = np.zeros((A_im_main.shape[0], A_im_main.shape[1] + 2))
-			A_im[:, 2:] = A_im_main
-			if self.fit_inductance:
-				# scale the inductance column so that coef[1] doesn't drop below the tolerance of cvxopt
-				A_im[:, 1] = 2 * np.pi * frequencies * 1e-4
+			# A_im_main = A_im.copy()
+			# A_im = np.zeros((A_im_main.shape[0], A_im_main.shape[1] + 2))
+			# A_im[:, 2:] = A_im_main
+			# if self.fit_inductance:
+				# # scale the inductance column so that coef[1] doesn't drop below the tolerance of cvxopt
+				# A_im[:, 1] = 2 * np.pi * frequencies * 1e-4
 
-			# # re-apply weight matrices to expanded A matrices
-			# WA_re = W_re @ A_re
-			# WA_im = W_im @ A_im
+			# # # re-apply weight matrices to expanded A matrices
+			# # WA_re = W_re @ A_re
+			# # WA_im = W_im @ A_im
 
-			# add rows and columns to M matrices
-			for d in range(3):
-				md_main = penalty_matrices[f'M{d}_main'].copy()
-				md = np.zeros((md_main.shape[0] + 2, md_main.shape[1] + 2))
-				md[2:, 2:] = md_main
-				penalty_matrices[f'M{d}'] = md
+			# # add rows and columns to M matrices
+			# for d in range(3):
+				# md_main = penalty_matrices[f'M{d}_main'].copy()
+				# md = np.zeros((md_main.shape[0] + 2, md_main.shape[1] + 2))
+				# md[2:, 2:] = md_main
+				# penalty_matrices[f'M{d}'] = md
 
-		# create L1 penalty vector
-		l1_vec = np.ones(A_re.shape[1]) * np.pi ** 0.5 / epsilon * l1_penalty
-		if dist_info['dist_type'] == 'series':
-			l1_vec[0:2] = 0	 # inductor and high-frequency resistor are not penalized
+		# # create L1 penalty vector
+		# l1_vec = np.ones(A_re.shape[1]) * np.pi ** 0.5 / epsilon * l1_penalty
+		# if dist_info['dist_type'] == 'series':
+			# l1_vec[0:2] = 0	 # inductor and high-frequency resistor are not penalized
 
-		# Construct weighted mean matrix for weights estimation
-		vmm = qphb.construct_var_matrix(frequencies, vmm_epsilon, vmm_reim_cor, error_structure)
+		# # Construct weighted mean matrix for weights estimation
+		# vmm = qphb.construct_var_matrix(frequencies, vmm_epsilon, vmm_reim_cor, error_structure)
 
-		# Hyper-lambda fit
-		# --------------------------
-		self.qphb_params = {}
-		self._iter_history = []
-		it = 0
+		# # Hyper-lambda fit
+		# # --------------------------
+		# self.qphb_params = {}
+		# self._iter_history = []
+		# it = 0
 
-		# Initialize x near zero
-		if x0 is not None:
-			x = x0
-		else:
-			x = np.zeros(A_re.shape[1]) + 1e-6
+		# # Initialize x near zero
+		# if x0 is not None:
+			# x = x0
+		# else:
+			# x = np.zeros(A_re.shape[1]) + 1e-6
 
-		# Initialize s and p vectors at mode
-		p_vector = np.ones(3) * p_0
-		s_vectors = [np.ones(A_re.shape[1]) * s_0] * 3
+		# # Initialize s and p vectors at mode
+		# p_vector = np.ones(3) * p_0
+		# s_vectors = [np.ones(A_re.shape[1]) * s_0] * 3
 
-		# Initialize data weights (IMPORTANT)
-		# -------------------------------------
-		est_weights, init_weights = qphb.initialize_weights(part, penalty_matrices, derivative_weights, p_vector, s_vectors,
-													   target_scaled, A_re, A_im, vmm, l1_vec, nonneg, error_structure,
-													   iw_alpha, iw_beta)
-													   # iw_alpha, iw_0)
-		self.qphb_params['est_weights'] = est_weights.copy()
-		self.qphb_params['init_weights'] = init_weights.copy()
-		weights = init_weights
-		# weights = est_weights
+		# # Initialize data weights (IMPORTANT)
+		# # -------------------------------------
+		# est_weights, init_weights = qphb.initialize_weights(part, penalty_matrices, derivative_weights, p_vector, s_vectors,
+													   # target_scaled, A_re, A_im, vmm, l1_vec, nonneg, error_structure,
+													   # iw_alpha, iw_beta)
+													   # # iw_alpha, iw_0)
+		# self.qphb_params['est_weights'] = est_weights.copy()
+		# self.qphb_params['init_weights'] = init_weights.copy()
+		# weights = init_weights
+		# # weights = est_weights
 
-		# Initialize xmx_norms at 1
-		xmx_norms = [1] * 3
+		# # Initialize xmx_norms at 1
+		# xmx_norms = [1] * 3
 
-		while it < max_iter:
-			x_in = x.copy()
+		# while it < max_iter:
+			# x_in = x.copy()
 
-			# Perform iteration
-			x, s_vectors, p_vector, weights, cvx_result, converged = self._iterate_qphb(
-				part, x_in, s_vectors, p_vector, target_scaled, weights, est_weights, error_structure, A_re, A_im, vmm,
-				penalty_matrices, l1_vec, l2_lambda_0, derivative_weights, p_alpha, p_0, s_alpha, s_0,
-				w_alpha, w_beta, xmx_norms,
-				1, nonneg, xtol)
+			# # Perform iteration
+			# x, s_vectors, p_vector, weights, cvx_result, converged = self._iterate_qphb(
+				# part, x_in, s_vectors, p_vector, target_scaled, weights, est_weights, error_structure, A_re, A_im, vmm,
+				# penalty_matrices, l1_vec, l2_lambda_0, derivative_weights, p_alpha, p_0, s_alpha, s_0,
+				# w_alpha, w_beta, xmx_norms,
+				# 1, nonneg, xtol)
 
-			# Normalize to ordinary ridge solution at first iteration
-			if it == 0:
-				xmx_norms = [x.T @ penalty_matrices[f'M{n}'] @ x for n in range(3)]
-				print('xmx', xmx_norms)
+			# # Normalize to ordinary ridge solution at first iteration
+			# if it == 0:
+				# xmx_norms = [x.T @ penalty_matrices[f'M{n}'] @ x for n in range(3)]
+				# print('xmx', xmx_norms)
 
-			# Update Z_scale as Rp estimate improves to maintain specified rp_scale
-			if it > 0 and scale_Z:
-				rp = np.sum(x[2:]) * np.pi ** 0.5 / epsilon
-				scale_factor = rp_scale / rp
-				print('scale factor:', scale_factor)
-				target_scaled *= scale_factor
-				xmx_norms = [xmx * scale_factor for xmx in xmx_norms]
-				est_weights *= scale_factor
-				weights *= scale_factor
-				self._Z_scale /= scale_factor
+			# # Update Z_scale as Rp estimate improves to maintain specified rp_scale
+			# if it > 0 and scale_Z:
+				# rp = np.sum(x[2:]) * np.pi ** 0.5 / epsilon
+				# scale_factor = rp_scale / rp
+				# print('scale factor:', scale_factor)
+				# target_scaled *= scale_factor
+				# xmx_norms = [xmx * scale_factor for xmx in xmx_norms]
+				# est_weights *= scale_factor
+				# weights *= scale_factor
+				# self._Z_scale /= scale_factor
 
-			if converged:
-				break
-			elif it == max_iter - 1:
-				warnings.warn(f'Hyperparametric solution did not converge within {max_iter} iterations')
+			# if converged:
+				# break
+			# elif it == max_iter - 1:
+				# warnings.warn(f'Hyperparametric solution did not converge within {max_iter} iterations')
 
-			it += 1
+			# it += 1
 
-		# Store results
-		self.qphb_params['weights'] = weights
-		self.qphb_params['xmx_norms'] = xmx_norms.copy()
-		w_vec = format_weights(Z, weights, part)
-		self.qphb_params['sigma'] = (w_vec.real ** -1 + 1j * w_vec.imag ** -1) * self._Z_scale
-		self.distribution_fits[dist_name] = {'opt_result': cvx_result, 'coef': x.copy(),
-											 'lambda_vectors': s_vectors.copy()}  #, 'cost': cost.copy()}
+		# # Store results
+		# self.qphb_params['weights'] = weights
+		# self.qphb_params['xmx_norms'] = xmx_norms.copy()
+		# w_vec = format_weights(Z, weights, part)
+		# self.qphb_params['sigma'] = (w_vec.real ** -1 + 1j * w_vec.imag ** -1) * self._Z_scale
+		# self.distribution_fits[dist_name] = {'opt_result': cvx_result, 'coef': x.copy(),
+											 # 'lambda_vectors': s_vectors.copy()}  #, 'cost': cost.copy()}
 
-		# rescale coefficients if scaling applied to A or Z
-		if scale_Z:
-			self.distribution_fits[dist_name]['scaled_coef'] = self.distribution_fits[dist_name]['coef'].copy()
-			# since the target for ridge_fit changes based on dist_type, rescaling coefficients always works in the same direction
-			self.distribution_fits[dist_name]['coef'] = self._rescale_coef(
-				self.distribution_fits[dist_name]['coef'],
-				dist_info['dist_type'])
+		# # rescale coefficients if scaling applied to A or Z
+		# if scale_Z:
+			# self.distribution_fits[dist_name]['scaled_coef'] = self.distribution_fits[dist_name]['coef'].copy()
+			# # since the target for ridge_fit changes based on dist_type, rescaling coefficients always works in the same direction
+			# self.distribution_fits[dist_name]['coef'] = self._rescale_coef(
+				# self.distribution_fits[dist_name]['coef'],
+				# dist_info['dist_type'])
 
-		# rescale the inductance
-		if dist_info['dist_type'] == 'series':
-			self.distribution_fits[dist_name]['coef'][1] *= 1e-4
+		# # rescale the inductance
+		# if dist_info['dist_type'] == 'series':
+			# self.distribution_fits[dist_name]['coef'][1] *= 1e-4
 
-		# If inductance not fitted, set inductance to zero to avoid confusion (goes to random number)
-		if dist_info['dist_type'] == 'series' and not self.fit_inductance:
-			self.distribution_fits[dist_name]['coef'][1] = 0
+		# # If inductance not fitted, set inductance to zero to avoid confusion (goes to random number)
+		# if dist_info['dist_type'] == 'series' and not self.fit_inductance:
+			# self.distribution_fits[dist_name]['coef'][1] = 0
 
-		# pull R_inf and inductance out of coef
-		if dist_info['dist_type'] == 'series':
-			self.R_inf = self.distribution_fits[dist_name]['coef'][0]
-			self.inductance = self.distribution_fits[dist_name]['coef'][1]
-			self.distribution_fits[dist_name]['coef'] = self.distribution_fits[dist_name]['coef'][2:]
-		else:
-			# ridge_fit cannot optimize R_inf and inductance for parallel distributions
-			self.R_inf = 0
-			self.inductance = 0
+		# # pull R_inf and inductance out of coef
+		# if dist_info['dist_type'] == 'series':
+			# self.R_inf = self.distribution_fits[dist_name]['coef'][0]
+			# self.inductance = self.distribution_fits[dist_name]['coef'][1]
+			# self.distribution_fits[dist_name]['coef'] = self.distribution_fits[dist_name]['coef'][2:]
+		# else:
+			# # ridge_fit cannot optimize R_inf and inductance for parallel distributions
+			# self.R_inf = 0
+			# self.inductance = 0
 
-		self.fit_type = 'qphb'
+		# self.fit_type = 'qphb'
 
-	def _iterate_qphb(self, part, x_in, s_vectors, p_vector, target, weights, est_weights, error_structure,
-					  a_re, a_im, vmm, penalty_matrices,
-					  l1_lambda_vector,
-					  l2_lambda_0, derivative_weights, p_alpha, p_0, s_alpha, s_0,
-					  w_alpha, w_beta, xmx_norms,
-					  inductance_index, nonneg,
-					  xtol):
-		# Format weight matrices
-		wv = format_weights(target, weights, part)
-		wm_re = np.diag(wv.real)
-		wm_im = np.diag(wv.imag)
-		# Apply weights to target vectors and impedance matrices
-		WT_re = wm_re @ target.real
-		WT_im = wm_im @ target.imag
-		WA_re = wm_re @ a_re
-		WA_im = wm_im @ a_im
+	# def _iterate_qphb(self, part, x_in, s_vectors, p_vector, target, weights, est_weights, error_structure,
+					  # a_re, a_im, vmm, penalty_matrices,
+					  # l1_lambda_vector,
+					  # l2_lambda_0, derivative_weights, p_alpha, p_0, s_alpha, s_0,
+					  # w_alpha, w_beta, xmx_norms,
+					  # inductance_index, nonneg,
+					  # xtol):
+		# # Format weight matrices
+		# wv = format_weights(target, weights, part)
+		# wm_re = np.diag(wv.real)
+		# wm_im = np.diag(wv.imag)
+		# # Apply weights to target vectors and impedance matrices
+		# WT_re = wm_re @ target.real
+		# WT_im = wm_im @ target.imag
+		# WA_re = wm_re @ a_re
+		# WA_im = wm_im @ a_im
 
-		# For each derivative order, update the global penalty strength and the local penalty scale vector
-		for n, d_weight in enumerate(derivative_weights):
-			if d_weight > 0:
-				m = penalty_matrices[f'M{n}']
-				sv_in = s_vectors[n]
-				# Solve for lambda scale vector
-				if np.shape(s_alpha) == (3,):
-					sd_alpha = s_alpha[n]
-				else:
-					sd_alpha = s_alpha
-				sd_beta = sd_alpha - 1	# Ensure mode of gamma distribution for s is 1
-				# alpha_s = xmx_norms[n] * (l2_alpha - 1) + 1
-				# beta_s = xmx_norms[n] * l2_beta
-				sv_out = qphb.solve_s(m, x_in, sv_in, sd_alpha, sd_beta)
+		# # For each derivative order, update the global penalty strength and the local penalty scale vector
+		# for n, d_weight in enumerate(derivative_weights):
+			# if d_weight > 0:
+				# m = penalty_matrices[f'M{n}']
+				# sv_in = s_vectors[n]
+				# # Solve for lambda scale vector
+				# if np.shape(s_alpha) == (3,):
+					# sd_alpha = s_alpha[n]
+				# else:
+					# sd_alpha = s_alpha
+				# sd_beta = sd_alpha - 1	# Ensure mode of gamma distribution for s is 1
+				# # alpha_s = xmx_norms[n] * (l2_alpha - 1) + 1
+				# # beta_s = xmx_norms[n] * l2_beta
+				# sv_out = qphb.solve_s(m, x_in, sv_in, sd_alpha, sd_beta)
 
-				# Handle numerical instabilities that may arise for large lambda_0 and small hl_alpha
-				sv_out[sv_out <= 0] = 1e-15
-				s_vectors[n] = sv_out
+				# # Handle numerical instabilities that may arise for large lambda_0 and small hl_alpha
+				# sv_out[sv_out <= 0] = 1e-15
+				# s_vectors[n] = sv_out
 
-				# calculate derivative strength
-				if np.shape(p_alpha) == (3,):
-					pd_alpha = p_alpha[n]
-				else:
-					pd_alpha = p_alpha
-				pd_beta = (pd_alpha - 1) / p_0
-				p_vector[n] = qphb.solve_p(m, x_in, sv_out, pd_alpha, pd_beta, xmx_norms[n])
+				# # calculate derivative strength
+				# if np.shape(p_alpha) == (3,):
+					# pd_alpha = p_alpha[n]
+				# else:
+					# pd_alpha = p_alpha
+				# pd_beta = (pd_alpha - 1) / p_0
+				# p_vector[n] = qphb.solve_p(m, x_in, sv_out, pd_alpha, pd_beta, xmx_norms[n])
 
-		# Make lml matrix for each derivative order
-		l2_matrices = [penalty_matrices[f'M{n}'] for n in range(0, 3)]
-		sms = qphb.calculate_sms(np.array(derivative_weights) * p_vector, l2_matrices, s_vectors)
-		sms *= l2_lambda_0
+		# # Make lml matrix for each derivative order
+		# l2_matrices = [penalty_matrices[f'M{n}'] for n in range(0, 3)]
+		# sms = qphb.calculate_sms(np.array(derivative_weights) * p_vector, l2_matrices, s_vectors)
+		# sms *= l2_lambda_0
 
-		# Solve the ridge problem with QP: optimize x
-		# Multiply lml by 2 due to exponential prior
-		cvx_result = qphb.solve_convex_opt(part, WT_re, WT_im, WA_re, WA_im, 2 * sms, l1_lambda_vector, nonneg)
-		# init_vals={'x': cvxopt.matrix(x0)})
-		x = np.array(list(cvx_result['x']))
+		# # Solve the ridge problem with QP: optimize x
+		# # Multiply lml by 2 due to exponential prior
+		# cvx_result = qphb.solve_convex_opt(part, WT_re, WT_im, WA_re, WA_im, 2 * sms, l1_lambda_vector, nonneg)
+		# # init_vals={'x': cvxopt.matrix(x0)})
+		# x = np.array(list(cvx_result['x']))
 
-		# If inductance not fitted, set inductance to zero (inductance goes to random number)
-		if not self.fit_inductance:
-			x_delta[inductance_index] = 1e-15
+		# # If inductance not fitted, set inductance to zero (inductance goes to random number)
+		# if not self.fit_inductance:
+			# x_delta[inductance_index] = 1e-15
 
-		# Calculate cost for diagnostics
-		P = (WA_re.T @ WA_re + WA_im.T @ WA_im + 2 * sms)
-		q = (-WA_re.T @ WT_re - WA_im.T @ WT_im + l1_lambda_vector)
-		cost = 0.5 * x.T @ P @ x + q.T @ x
+		# # Calculate cost for diagnostics
+		# P = (WA_re.T @ WA_re + WA_im.T @ WA_im + 2 * sms)
+		# q = (-WA_re.T @ WT_re - WA_im.T @ WT_im + l1_lambda_vector)
+		# cost = 0.5 * x.T @ P @ x + q.T @ x
 
-		# Update weights
-		weights = qphb.estimate_weights(x, target, vmm, a_re, a_im, est_weights, error_structure, w_alpha, w_beta)
+		# # Update weights
+		# weights = qphb.estimate_weights(x, target, vmm, a_re, a_im, est_weights, error_structure, w_alpha, w_beta)
 
-		self._iter_history.append(
-			{'x': x.copy(),
-			 'l1_lambda_vector': l1_lambda_vector.copy(),
-			 'l2_lambda_0': l2_lambda_0,
-			 's_vectors': s_vectors.copy(),
-			 'p_vector': p_vector,
-			 'weights': weights,
-			 'fun': cvx_result['primal objective'],
-			 'cost': cost,
-			 'cvx_result': cvx_result,
-			 }
-		)
+		# self._iter_history.append(
+			# {'x': x.copy(),
+			 # 'l1_lambda_vector': l1_lambda_vector.copy(),
+			 # 'l2_lambda_0': l2_lambda_0,
+			 # 's_vectors': s_vectors.copy(),
+			 # 'p_vector': p_vector,
+			 # 'weights': weights,
+			 # 'fun': cvx_result['primal objective'],
+			 # 'cost': cost,
+			 # 'cvx_result': cvx_result,
+			 # }
+		# )
 
-		# check for convergence
-		x_delta = (x - x_in) / x_in
-		# If inductance not fitted, set inductance delta to zero (inductance goes to random number)
-		if not self.fit_inductance:
-			x_delta[inductance_index] = 0
-		# print(np.mean(np.abs(coef_delta)))
-		if np.mean(np.abs(x_delta)) < xtol:
-			converged = True
-		else:
-			converged = False
+		# # check for convergence
+		# x_delta = (x - x_in) / x_in
+		# # If inductance not fitted, set inductance delta to zero (inductance goes to random number)
+		# if not self.fit_inductance:
+			# x_delta[inductance_index] = 0
+		# # print(np.mean(np.abs(coef_delta)))
+		# if np.mean(np.abs(x_delta)) < xtol:
+			# converged = True
+		# else:
+			# converged = False
 
-		return x, s_vectors, p_vector, weights, cvx_result, converged
+		# return x, s_vectors, p_vector, weights, cvx_result, converged
 
 	# ===============================================
 	# Methods for fitting hierarchical Bayesian model
