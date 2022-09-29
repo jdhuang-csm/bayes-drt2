@@ -1,6 +1,6 @@
 # bayes_drt2
 
-`bayes_drt2` is a re-implementation of [`bayes_drt`](https://github.com/jdhuang-csm/bayes-drt) using the `cmdstan` interface to Stan instead of `pystan`. This addresses some issues with installation and the removal of optimization functionality in current versions of `pystan`. The functionality and structure of `bayes_drt2` is virtually identical to that of `bayes_drt`. If you are using `bayes_drt` without issue, there is no reason to switch to `bayes_drt`. See the [tutorials for `bayes_drt`](https://github.com/jdhuang-csm/bayes-drt/tree/master/tutorials) for tutorials on how to use the package.
+`bayes_drt2` is a re-implementation of [`bayes_drt`](https://github.com/jdhuang-csm/bayes-drt) using the `cmdstan` interface to Stan instead of `pystan`. This addresses some issues with installation and the removal of optimization functionality in current versions of `pystan`. The functionality and structure of `bayes_drt2` is virtually identical to that of `bayes_drt`. If you are using `bayes_drt` without issue, there is no reason to switch to `bayes_drt2`. See the [tutorials for `bayes_drt`](https://github.com/jdhuang-csm/bayes-drt/tree/master/tutorials) for tutorials on how to use this package (the API is the same).
 
 `bayes_drt2` is a Python package for inverting  electrochemical impedance spectroscopy (EIS) data to obtain the distribution of relaxation times (DRT) and/or distribution of diffusion times (DDT).
 
