@@ -2517,6 +2517,8 @@ class Inverter:
 			# recalc_fit_matrices = deepcopy(self._recalc_fit_matrices)
 			# self.distributions = temp_dist
 			# self._recalc_fit_matrices = recalc_fit_matrices
+			
+			tau = info['tau']
 
 			# create A matrices
 			if self._recalc_fit_matrices or 'A_re' not in self.distribution_matrices[name].keys() or 'A_im' not in \
