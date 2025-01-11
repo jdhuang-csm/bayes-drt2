@@ -1404,13 +1404,6 @@ class Inverter:
 		SA, SASY: bool
 			For testing only
 		"""
-		# perform scaling and weighting and get matrices
-		frequencies, Z_scaled, WZ_re, WZ_im, W_re, W_im, dist_mat = self._prep_matrices(frequencies, Z, part,
-																						weights=None, dZ=False,
-																						scale_Z=scale_Z,
-																						penalty='discrete',
-																						fit_type='map')
-
 		# get initial fit
 		if init_from_ridge:
 			if len(self.distributions) > 1:
@@ -1421,6 +1414,14 @@ class Inverter:
 				self._init_params = init
 		else:
 			init = None
+   
+		# perform scaling and weighting and get matrices
+		frequencies, Z_scaled, WZ_re, WZ_im, W_re, W_im, dist_mat = self._prep_matrices(frequencies, Z, part,
+																						weights=None, dZ=False,
+																						scale_Z=scale_Z,
+																						penalty='discrete',
+																						fit_type='map')
+
 
 		# check for outliers. Use more stringent threshold to avoid false positives
 		if outliers == 'auto':
@@ -1539,7 +1540,7 @@ class Inverter:
 			self.fit_type = 'map'
 		elif mode == 'sample':
 			self.fit_type = 'bayes'
-
+   
 		# check if outliers were missed
 		if outliers is False and check_outliers:
 			outlier_idx = self.check_outliers(frequencies, Z, threshold=3.5, use_existing_fit=True)
@@ -1547,6 +1548,7 @@ class Inverter:
 				warnings.warn(
 					'Possible outliers were identified at indices {}, f={} Hz. Check the residuals and consider re-running with outliers=True'.format(
 						outlier_idx, frequencies[outlier_idx]))
+
 
 	def drift_map_fit(self, frequencies, Z, times, drift_model='x1', part='both', scale_Z=True, init_from_ridge=False,
 					  nonneg=False, outliers=False,
@@ -3454,7 +3456,7 @@ class Inverter:
 
 		return score
 
-	def predict_distribution(self, tau=None, name=None, percentile=None, time=None):
+	def predict_distribution(self, name=None, tau=None, percentile=None, time=None):
 		"""Get fitted distribution(s)
 		"""
 		# If distribution name not specified, use first distribution
@@ -3640,7 +3642,7 @@ class Inverter:
 			fit_exists = True
 		else:
 			fit_exists = False
-
+   
 		# If no fit exists or use_existing_fit == False, perform ridge fit
 		if not (use_existing_fit and fit_exists):
 			self.ridge_fit(frequencies, Z, preset='Huang', **ridge_kw)
@@ -4519,7 +4521,7 @@ class Inverter:
 			self._f_predict_eq_f_train = False
 			self._f_predict = frequencies
 			self._recalc_prediction_matrices = True
-			print('f')
+			# print('f')
 		else:
 			self._f_predict_subset_index = ('', [])
 			self._f_predict_eq_f_train = False
@@ -4550,13 +4552,13 @@ class Inverter:
 					)
 													)
 					# self._recalc_prediction_matrices = False
-					print('d')
+					# print('d')
 					# In this case, we should not update self._f_predict
 				else:
 					# if frequencies is not a subset of self.f_train or self.f_predict, must calculate matrices
 					self._f_predict = frequencies
 					self._recalc_prediction_matrices = True
-					print('e')
+					# print('e')
 
 	f_predict = property(get_f_predict, set_f_predict)
 
